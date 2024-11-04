@@ -62,8 +62,8 @@ def users():
         if administrador is True:
             data = request.get_json()
             username = data.get('username')
-            password = data.get('password')  # Cambié 'password_hash' a 'password'
-            is_admin = data.get('is_admin', False)  # Por defecto, no es administrador
+            password = data.get('password')  
+            is_admin = data.get('is_admin') 
 
             # Validar los datos usando UserSchema
             data_validation = {
