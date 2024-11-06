@@ -35,13 +35,15 @@ class Caracteristica(db.Model):
 
 class Fabricante(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
+    nombre = db.Column(db.String(100), nullable=False)  # Debería ser "nombre"
     pais_id = db.Column(db.Integer, db.ForeignKey('pais.id'), nullable=False)
-
+    
     pais = db.relationship('Pais', backref=db.backref('fabricantes', lazy=True))
 
-    def __str__(self) -> str:
-        return self.nombre
+    def __str__(self):
+        return self.nombre 
+
+
 
 
 class Modelo(db.Model):
@@ -57,15 +59,11 @@ class Modelo(db.Model):
 
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cantidad_disponible = db.Column(db.Integer, nullable=False)
+    cantidad = db.Column(db.Integer, nullable=False)
     ubicacion = db.Column(db.String(100), nullable=False)
     equipo_id = db.Column(db.Integer, db.ForeignKey('equipo.id'), nullable=False)
-
     equipo = db.relationship('Equipo', backref=db.backref('stocks', lazy=True))
-    fecha_actualizacion = db.Column(db.DateTime, nullable=False)
 
-    def __str__(self) -> str:
-        return f"Stock de {self.equipo.nombre}: {self.cantidad_disponible}"
 
 
 class Proveedor(db.Model):
@@ -80,12 +78,13 @@ class Proveedor(db.Model):
 class Accesorio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(db.String(50), nullable=False)
-    compatible_con_id = db.Column(db.Integer, db.ForeignKey('modelo.id'), nullable=False)
+    modelo_id = db.Column(db.Integer, db.ForeignKey('modelo.id'), nullable=False)
 
-    compatible_con = db.relationship('Modelo', backref=db.backref('accesorios', lazy=True))
+    modelo = db.relationship('Modelo', backref=db.backref('accesorios', lazy=True))
 
     def __str__(self) -> str:
         return self.tipo
+
 
 
 class Equipo(db.Model):

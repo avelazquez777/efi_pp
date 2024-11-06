@@ -112,3 +112,29 @@ def users():
         return UserSchema().dump(usuarios, many=True), 200
     else:
         return MinimalUserSchema().dump(usuarios, many=True), 200
+    
+@auth_bp.route('/users/<int:id>/delete', methods=['DELETE'])
+@jwt_required()
+def eliminar_usuario(id):
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
+
+    # Verificar si el usuario es administrador
+    if not administrador:
+        return jsonify({"Mensaje": "No está autorizado para eliminar usuarios"}), 403
+
+    usuario = User.query.get(id)
+    if not usuario:
+        return jsonify({"Mensaje": "Usuario no encontrado"}), 404
+
+    # Verificar si el usuario está siendo utilizado en otras relaciones importantes, si es necesario
+    # Aquí puedes agregar alguna validación para relaciones asociadas con el usuario, si aplica.
+
+    try:
+        db.session.delete(usuario)
+        db.session.commit()
+        return jsonify({"Mensaje": "Usuario eliminado con éxito"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"Mensaje": "Error al eliminar el usuario", "Error": str(e)}), 500
+
