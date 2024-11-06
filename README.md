@@ -17,7 +17,7 @@ Sigue estos pasos para instalar y configurar el proyecto en tu máquina local.
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu_usuario/gestion_stock.git
+git clone https://github.com/tu_usuario/efi_pp.git
 cd gestion_stock
 ```
 
