@@ -21,10 +21,9 @@ def stocks():
                 return make_response(jsonify(errors), 400)
 
             nuevo_stock = Stock(
-                cantidad_disponible=data.get('cantidad_disponible'),
+                cantidad=data.get('cantidad'),
                 ubicacion=data.get('ubicacion'),
                 equipo_id=data.get('equipo_id'),
-                fecha_actualizacion=datetime.now()
             )
             db.session.add(nuevo_stock)
             db.session.commit()

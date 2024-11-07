@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, make_response
 from app import db
-from models import Accesorio
+from models import Accesorio, Modelo
 from schemas import AccesorioSchema
 from flask_jwt_extended import jwt_required, get_jwt
 
@@ -20,9 +20,8 @@ def accesorios():
                 return make_response(jsonify(errors), 400)
             
             nuevo_accesorio = Accesorio(
-                nombre=data.get('nombre'),
-                descripcion=data.get('descripcion'),
-                compatible_con_id=data.get('modelo_id') 
+                tipo=data.get('tipo'),
+                modelo_id=data.get('modelo_id') 
             )
             db.session.add(nuevo_accesorio)
             db.session.commit()

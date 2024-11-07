@@ -21,8 +21,7 @@ def categorias():
                 return make_response(jsonify(errors), 400)
             
             nuevo_categoria = Categoria(
-                nombre_categoria=data.get('nombre_categoria'),
-                fabricante_id=data.get('fabricante_id')
+                nombre=data.get('nombre'),
             )
             db.session.add(nuevo_categoria)
             db.session.commit()
@@ -42,7 +41,7 @@ def eliminar_categoria(id):
     if not administrador:
         return jsonify({"Mensaje": "No está autorizado para eliminar categorias"}), 403
 
-    categoria = categoria.query.get(id)
+    categoria = Categoria.query.get(id)
     if not categoria:
         return jsonify({"Mensaje": "Categoria no encontrado"}), 404
 

@@ -20,7 +20,7 @@ def fabricantes():
                 return make_response(jsonify(errors), 400)
             
             nuevo_fabricante = Fabricante(
-                nombre_fabricante=data.get('nombre_fabricante'),
+                nombre=data.get('nombre'),  # Cambia "nombre_fabricante" a "nombre"
                 pais_id=data.get('pais_id')  # Relación con País
             )
             db.session.add(nuevo_fabricante)
@@ -48,3 +48,5 @@ def eliminar_fabricante(id):
     db.session.delete(fabricante)
     db.session.commit()
     return jsonify({"Mensaje": "Fabricante eliminado con éxito"}), 200
+
+

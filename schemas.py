@@ -63,6 +63,7 @@ class FabricanteSchema(ma.SQLAlchemySchema):
     pais = ma.Nested(PaisSchema)
 
 
+
 class ModeloSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Modelo
@@ -89,9 +90,11 @@ class AccesorioSchema(ma.SQLAlchemySchema):
 
     id = ma.auto_field()
     tipo = ma.auto_field()
-    compatible_con_id = ma.auto_field()
+    modelo_id = ma.auto_field()  
 
-    compatible_con = ma.Nested(ModeloSchema)
+    
+    modelo = ma.Nested(ModeloSchema) 
+
 
 
 class EquipoSchema(ma.SQLAlchemySchema):
@@ -110,7 +113,7 @@ class EquipoSchema(ma.SQLAlchemySchema):
     categoria = ma.Nested(CategoriaSchema)
     proveedor = ma.Nested(ProveedorSchema)
 
-    @validates('anio_fabricarion')
+    @validates('anio_fabricacion')
     def validate_anio_fabricacion(self, value):
         if int(value) > 2024:
             return ValidationError("El año es superior al actual")
@@ -121,11 +124,11 @@ class StockSchema(ma.SQLAlchemySchema):
         model = Stock
 
     id = ma.auto_field()
-    cantidad_disponible = ma.auto_field()
+    cantidad = ma.auto_field()  
     ubicacion = ma.auto_field()
     equipo_id = ma.auto_field()
-    fecha_actualizacion = ma.auto_field()
+    
+    equipo = ma.Nested(EquipoSchema)
 
-    equipo = ma.Nested(EquipoSchema) 
 
 
