@@ -48,3 +48,26 @@ def eliminar_pais(id):
     db.session.delete(pais)
     db.session.commit()
     return jsonify({"Mensaje": "País eliminado con éxito"}), 200
+
+@pais_bp.route('/paises/<int:id>/edit', methods=['PUT'])
+@jwt_required()
+def editar_pais(id):
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
+
+    if not administrador:
+        return jsonify({"Mensaje": "No está autorizado para editar países"}), 403
+
+    pais = Pais.query.get(id)
+    if not pais:
+        return jsonify({"Mensaje": "País no encontrado"}), 404
+
+    data = request.get_json()
+    errors = PaisSchema().validate(data)
+    if errors:
+        return make_response(jsonify(errors), 400)
+
+    pais.nombre = data.get('nombre', pais.nombre)  # Actualiza solo el nombre si se proporciona
+    db.session.commit()
+
+    return jsonify({"Mensaje": "País actualizado con éxito", "pais": PaisSchema().dump(pais)}), 200

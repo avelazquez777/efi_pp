@@ -45,10 +45,9 @@ def login():
             expires_delta=timedelta(minutes=20),
             additional_claims={"administrador": usuario.is_admin}
         )
-        return jsonify({"Token": f"Bearer {access_token}"})
+        return jsonify({"Token": f"{access_token}"})
 
     return jsonify({"Mensaje": "El usuario y la contraseña no coinciden"}), 401
-
 
 # Ruta para listar o crear usuarios
 @auth_bp.route('/users', methods=['GET', 'POST'])
@@ -113,6 +112,7 @@ def users():
     else:
         return MinimalUserSchema().dump(usuarios, many=True), 200
     
+# Ruta para eliminar un usuario
 @auth_bp.route('/users/<int:id>/delete', methods=['DELETE'])
 @jwt_required()
 def eliminar_usuario(id):
@@ -127,9 +127,6 @@ def eliminar_usuario(id):
     if not usuario:
         return jsonify({"Mensaje": "Usuario no encontrado"}), 404
 
-    # Verificar si el usuario está siendo utilizado en otras relaciones importantes, si es necesario
-    # Aquí puedes agregar alguna validación para relaciones asociadas con el usuario, si aplica.
-
     try:
         db.session.delete(usuario)
         db.session.commit()
@@ -138,3 +135,46 @@ def eliminar_usuario(id):
         db.session.rollback()
         return jsonify({"Mensaje": "Error al eliminar el usuario", "Error": str(e)}), 500
 
+# Nueva ruta para editar un usuario
+@auth_bp.route('/users/<int:id>/edit', methods=['PUT'])
+@jwt_required()
+def editar_usuario(id):
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
+
+    # Verificar si el usuario es administrador
+    if not administrador:
+        return jsonify({"Mensaje": "No está autorizado para editar usuarios"}), 403
+
+    usuario = User.query.get(id)
+    if not usuario:
+        return jsonify({"Mensaje": "Usuario no encontrado"}), 404
+
+    data = request.get_json()
+    username = data.get('username', usuario.username)  # Si no se envía un nuevo nombre, se mantiene el actual
+    password = data.get('password')  # La contraseña es opcional
+    is_admin = data.get('is_admin', usuario.is_admin)  # Si no se envía, se mantiene el valor actual
+
+    # Validar el nuevo nombre de usuario y contraseña si se proporcionan
+    if username != usuario.username and User.query.filter_by(username=username).first():
+        return jsonify({"Mensaje": "El nombre de usuario ya existe."}), 400
+
+    if password and not is_valid_password(password):
+        return jsonify({"Mensaje": "La contraseña debe tener entre 6 y 12 caracteres, contener al menos un número y una letra, y no tener espacios."}), 400
+
+    try:
+        # Actualizar los campos del usuario
+        usuario.username = username
+        if password:
+            usuario.password_hash = generate_password_hash(password)
+        usuario.is_admin = is_admin
+
+        db.session.commit()
+
+        return jsonify({
+            "Mensaje": "Usuario editado correctamente",
+            "Usuario": UserSchema().dump(usuario)
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"Mensaje": "Error al editar el usuario", "Error": str(e)}), 500
